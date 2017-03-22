@@ -4,7 +4,7 @@ package data
   * Created by lee on 17-3-20.
   */
 
-class BitMap(val bytes: Seq[Byte]) extends IndexedSeq[(Int,Boolean)] {
+class BitMap(val bytes: Array[Byte]) extends IndexedSeq[(Int,Boolean)] {
 
   val length: Int = bytes.length * 8
 
@@ -30,10 +30,8 @@ class BitMap(val bytes: Seq[Byte]) extends IndexedSeq[(Int,Boolean)] {
 
     if (index < 0 || index >= length)
       throw new IllegalArgumentException(s"The index($index) is out of range")
-    bytes(quotient) = bytes(quotient) | BitMap.Bytes(remainder)
+    bytes(quotient) = (bytes(quotient) | BitMap.Bytes(remainder)).toByte
   }
-
-
 
   override def foreach[U](f: ((Int, Boolean)) => U) {
     var currentIndex = 0
@@ -57,7 +55,7 @@ object BitMap {
 
   def position(index: Int): (Int, Int) = (index / 8, index % 8)
 
-  def apply(bytes: Seq[Byte]): BitMap = new BitMap(bytes)
+  def apply(bytes: Array[Byte]): BitMap = new BitMap(bytes)
 
   def apply(length: Int): BitMap = new BitMap(Array.fill[Byte](length / 8 + 1)(0.toByte))
 }

@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets
 import javax.imageio.ImageIO
 
 import image.ImageUtils._
+import util.Util._
+
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
 import scala.collection.mutable.ArrayBuffer
@@ -14,15 +16,6 @@ import scala.collection.mutable.ArrayBuffer
   * Created by lee on 17-3-19.
   */
 class ImageTest extends FunSuite with BeforeAndAfterAll {
-
-  def getListOfFiles(dir: String): Seq[File] = {
-    val d = new File(dir)
-    if (d.exists && d.isDirectory) {
-      d.listFiles.filter(_.isFile).toSeq
-    } else {
-      Seq[File]()
-    }
-  }
 
   test("test load Image") {
 

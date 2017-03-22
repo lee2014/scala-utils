@@ -1,52 +1,36 @@
 package algorithm
 
-import data.{BitMap, Serialization}
-
-import java.security.MessageDigest
 import scala.math._
-
+import scala.util.control.Breaks._
 
 /**
   * Description: https://en.wikipedia.org/wiki/Flajolet%E2%80%93Martin_algorithm
   * Created by lee on 17-3-20.
   */
-class FlajoletMartin(length: Int = 512) {
+class FlajoletMartin extends CardinalityEstimation with MD5Hash {
 
-  final val bitmap = BitMap(length)
+  private final var bitmap = BigInt(0)
 
-  final val factor = 0.77351
+  private final val factor = 0.77351
 
-  def md5(bytes: Array[Byte]): Array[Byte] = {
-    MessageDigest.getInstance("MD5").digest(bytes)
+  private[algorithm] def leastSignificant(value: Any): Int = hash(value).lowestSetBit
+
+  private[algorithm] override def insert(value: Any): Unit = {
+    bitmap = bitmap | BigInt(pow(2, leastSignificant(value)).toLong)
   }
 
-  def leastSignificant(value: Any): Int = {
-    val hash = md5(Serialization.serialize(value).reverse)
+  override def estimate: Long = {
+    var R: Int = bitmap.bitLength
 
-    hash.zipWithIndex.foreach { item =>
-      val (byte, index) = item
-
-      BitMap.Bytes.indices.foreach { i =>
-        if ((BitMap.Bytes(i) & byte) != 0) return index * 8 + i
+    breakable {
+      Range(0, bitmap.bitLength).foreach { i =>
+        if (!bitmap.testBit(i)) {
+          R = i
+          break
+        }
       }
     }
 
-    bitmap.length
+    (pow(2, R) / factor).toLong
   }
-
-  def set(value: Any): Unit = {
-    val index = leastSignificant(value)
-    bitmap.set(index)
-  }
-
-  def distinct(): Int = {
-    var R: Int = bitmap.length
-
-    Range(0, bitmap.length).foreach { i =>
-      if (!bitmap.get(i)) R = i
-    }
-
-    (pow(2, R) / factor).toInt
-  }
-
 }
