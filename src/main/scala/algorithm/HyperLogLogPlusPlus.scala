@@ -26,7 +26,7 @@ class HyperLogLogPlusPlus(private val p: Int) extends CardinalityEstimation with
     *
     * Suppose x is hashed value of the input, x(i) is i-th bit of x,
     * [1100]2 is the binary representation of 12.
-    * So we define registerIndex := [x(63), . . . , x64−p]2
+    * So we define registerIndex := [x(63), . . . , x(64−p)]2
     */
   private[algorithm] def registerIndex(value: BigInt): Int = {
     ((value >> (64 - p)).abs % m).toInt
@@ -39,7 +39,9 @@ class HyperLogLogPlusPlus(private val p: Int) extends CardinalityEstimation with
   private[algorithm] override def insert(value: Any): Unit = {
     val x: BigInt = hash(value)
     val idx: Int = registerIndex(x)
-    registers(idx) = max(registers(idx), rho(x))
+    val w: Int = rho(x)
+
+    if (w > registers(idx)) registers(idx) = w
   }
 
   /**
@@ -98,6 +100,12 @@ class HyperLogLogPlusPlus(private val p: Int) extends CardinalityEstimation with
       e = (- pow(2, 32) * log(1 - e / pow(2, 32))).toLong
     }
     e
+  }
+
+  def +=(other: HyperLogLogPlusPlus): this.type = {
+    if (m != other.m) throw new IllegalArgumentException("Can't be added together!")
+    Range(0, m).foreach(i => registers(i) += other.registers(i))
+    this
   }
 }
 
