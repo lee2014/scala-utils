@@ -11,7 +11,7 @@ import scala.math.BigInt
   */
 trait MD5Hash {
   private[algorithm] def hash(value: Any): BigInt = {
-    val bytes = MessageDigest.getInstance("MD5").digest(Serialization.serialize(value))
+    val bytes = MessageDigest.getInstance("MD5").digest(Serialization.serialize(value.toString))
     BigInt(bytes)
   }
 }

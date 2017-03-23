@@ -102,11 +102,13 @@ class HyperLogLogPlusPlus(private val p: Int) extends CardinalityEstimation with
     e
   }
 
-  def +=(other: HyperLogLogPlusPlus): this.type = {
+  def merge(other: HyperLogLogPlusPlus): this.type = {
     if (m != other.m) throw new IllegalArgumentException("Can't be added together!")
-    Range(0, m).foreach(i => registers(i) += other.registers(i))
+    Range(0, m).foreach(i => registers(i) = max(registers(i), other.registers(i)))
     this
   }
+
+  def +=(other: HyperLogLogPlusPlus): this.type = merge(other)
 }
 
 object HyperLogLogPlusPlus {
