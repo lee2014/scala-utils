@@ -25,9 +25,9 @@ class FlajoletMartinTest extends FunSuite with BeforeAndAfterAll {
     val probabilityCount = flajoletMartin.estimate
     val realCount = tests.distinct.size
 
-    val accuracy = abs(probabilityCount.toDouble - realCount) / realCount
+    val error = abs(probabilityCount.toDouble - realCount) / realCount
 
     println(probabilityCount)
-    println(s"Accuracy: $accuracy")
+    println(s"Error: $error")
   }
 }

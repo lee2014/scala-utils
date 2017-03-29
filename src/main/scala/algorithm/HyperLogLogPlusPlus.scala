@@ -1,10 +1,6 @@
 package algorithm
 
-import util.Util._
-
 import scala.math._
-import scala.util.control.Breaks._
-
 
 /**
   * The description of this algorithm:
@@ -13,102 +9,43 @@ import scala.util.control.Breaks._
   *
   * Created by lee on 17-3-21.
   */
-class HyperLogLogPlusPlus(private val p: Int) extends CardinalityEstimation with MD5Hash {
-
-  require(4 <= p && p <= 16,
-    s"Parameter p: $p shouldn't be out of range from 4 to 16!")
-
-  private[algorithm] final val m: Int = pow(2, p).toInt
-  private[algorithm] final val registers: Array[Int] = Array.fill(m)(0)
-
-  /**
-    * Find registerIndex from hashed value.
-    *
-    * Suppose x is hashed value of the input, x(i) is i-th bit of x,
-    * [1100]2 is the binary representation of 12.
-    * So we define registerIndex := [x(63), . . . , x(64−p)]2
-    */
-  private[algorithm] def registerIndex(value: BigInt): Int = {
-    ((value >> (64 - p)).abs % m).toInt
-  }
-
-  /**
-    * Add an element
-    * @param value An element of MultiSet
-    */
-  private[algorithm] override def insert(value: Any): Unit = {
-    val x: BigInt = hash(value)
-    val idx: Int = registerIndex(x)
-    val w: Int = rho(x)
-
-    if (w > registers(idx)) registers(idx) = w
-  }
+class HyperLogLogPlusPlus(private[algorithm] override val p: Int) extends LogLog(p: Int) {
 
   /**
     * A Linear-Time Probabilistic Counting
     * The Description: http://organ.kaist.ac.kr/Prof/pdf/Whang1990(linear).pdf
     */
-  def linearCounting(v: Int): Long = (m * log(m.toDouble / v)).toLong
+  def linearCounting(v: Int): Double = m * log(m.toDouble / v)
 
   /**
     * The constant alpha is provided by the analysis of
     * [HyperLogLog: the analysis of a near-optimal cardinality estimation algorithm]
     */
-  private[algorithm] def alpha: Double = {
-    if (p <= 6) HyperLogLogPlusPlus.alphas(p - 4)
-    else 0.7213 / ( 1 + 1.079 / m)
-  }
-
-  /**
-    * ρ(s) represent the position of the leftmost 1.
-    * For examples, ρ([0001...]2) = 4, ρ([001...]2) = 3, ρ([1...]2) = 1
-    */
-  private[algorithm] def rho(value: BigInt): Int= {
-    var rhoValue = 64 - p - 1
-
-    breakable {
-      Range(0, 64 - p).foreach { index =>
-        if (value.testBit(index)) {
-          rhoValue = index
-          break
-        }
-      }
-    }
-
-    rhoValue + 1
-  }
+  private[algorithm] override def alpha: Double = 1 / (2 * log(2) * (1 + (3 * log(2) - 1) / m))
 
   /**
     * Obviously, m * z is the harmonic mean of all register's counter.
     * So m * m * z is close to the cardinality n of multiSet
     */
-  private[algorithm] def rawEstimate: Long = {
+  private[algorithm] override def rawEstimate: Double = {
     val z = registers.map(x => pow(2, -x)).sum
-    (alpha * pow(m, 2) * pow(z, -1)).toLong
+    alpha * pow(m, 2) * pow(z, -1)
   }
 
   /**
     * Return the approximate count of the cardinality n
     */
-  def estimate: Long = {
-    var e: Long = rawEstimate
+  override def estimate: Long = {
+    var e: Double = rawEstimate
 
     if ( e <= 5 * m / 2) {
       val zeros = registers.count(_ == 0)
       if (zeros != 0) e = linearCounting(zeros)
     } else if (e > (pow(2, 32) / 30)) {
-      e = (- pow(2, 32) * log(1 - e / pow(2, 32))).toLong
+      e = - pow(2, 32) * log(1 - e / pow(2, 32))
     }
-    e
+    e.toLong
   }
-
-  def merge(other: HyperLogLogPlusPlus): this.type = {
-    if (m != other.m) throw new IllegalArgumentException("Can't be added together!")
-    Range(0, m).foreach(i => registers(i) = max(registers(i), other.registers(i)))
-    this
-  }
-
-  def +=(other: HyperLogLogPlusPlus): this.type = merge(other)
 }
 
 object HyperLogLogPlusPlus {
