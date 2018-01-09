@@ -50,44 +50,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.typesafe.slick</groupId>
-            <artifactId>slick_2.11</artifactId>
-            <version>3.2.0</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>23.6-jre</version>
         </dependency>
-        <dependency>
-            <groupId>com.typesafe.slick</groupId>
-            <artifactId>slick-codegen_2.11</artifactId>
-            <version>3.2.0</version>
-        </dependency>
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-nop</artifactId>
             <version>1.6.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.slick</groupId>
-            <artifactId>slick-testkit_2.11</artifactId>
-            <version>3.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe.slick</groupId>
-            <artifactId>slick-hikaricp_2.11</artifactId>
-            <version>3.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.twitter</groupId>
-            <artifactId>finagle-core_2.11</artifactId>
-            <version>6.44.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.twitter</groupId>
-            <artifactId>finagle-http_2.11</artifactId>
-            <version>6.44.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.docx4j</groupId>
-            <artifactId>docx4j</artifactId>
-            <version>3.3.3</version>
         </dependency>
 
         <dependency>

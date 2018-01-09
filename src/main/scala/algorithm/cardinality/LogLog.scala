@@ -1,6 +1,6 @@
 package algorithm.cardinality
 
-import algorithm.MD5Hash
+import algorithm.Hash
 import util.Util.require
 
 import scala.math.{BigInt, Pi, log, max, pow}
@@ -9,8 +9,8 @@ import scala.util.control.Breaks.{break, breakable}
 /**
   * Created by lee on 17-3-28.
   */
-class LogLog(private[algorithm] val p: Int) extends CardinalityEstimation with MD5Hash {
-  require(4 <= p && p <= 16,
+class LogLog(private[algorithm] val p: Int) extends CardinalityEstimation with Hash {
+  require(4 <= p && p <= 20,
     s"Parameter p: $p shouldn't be out of range from 4 to 16!")
 
   val lnOf2: Double = log(2) // natural log of 2
@@ -79,13 +79,13 @@ class LogLog(private[algorithm] val p: Int) extends CardinalityEstimation with M
     */
   def estimate: Long = rawEstimate.toLong
 
-  def merge(other: LogLog): this.type = {
+  private[algorithm] def merge(other: LogLog): LogLog = {
     if (m != other.m) throw new IllegalArgumentException("Can't be added together!")
     Range(0, m).foreach(i => registers(i) = max(registers(i), other.registers(i)))
     this
   }
 
-  def +=(other: LogLog): this.type = merge(other)
+  def +(other: LogLog): LogLog = merge(other)
 }
 
 object LogLog {

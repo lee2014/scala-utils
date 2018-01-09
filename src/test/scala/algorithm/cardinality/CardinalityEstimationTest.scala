@@ -22,39 +22,58 @@ class CardinalityEstimationTest extends FunSuite with BeforeAndAfterAll{
     val error = abs(probabilityCount.toDouble - realCount) / realCount
 
     println(probabilityCount)
-    println(s"Error: $error")
-    println(s"Expectation: ${0.78 / sqrt(flajoletMartin.m)}")
+    println(s"Error: ${error * 100}%")
+    println(s"Expectation: ${0.78 / sqrt(flajoletMartin.m) * 100}%")
   }
 
   test("test HyperLogLogPlusPlus") {
-    val hyperLogLog = HyperLogLogPlusPlus(16)
+    val hyperLogLog = HyperLogLogPlusPlus(18)
 
     val random = new Random(System.nanoTime)
     val tests = Range(0, 10000000).map(_ => random.nextInt(200000))
 
-    hyperLogLog.insertAll(tests)
+    printlnRunTime { hyperLogLog.insertAll(tests) }
     val probabilityCount = hyperLogLog.estimate
     val realCount = tests.distinct.size
 
-    val error = (probabilityCount.toDouble - realCount) / realCount
+    val error = (probabilityCount.toDouble - realCount).abs / realCount
 
-    println(s"Error: $error")
-    println(s"Expectation: ${1.04 / sqrt(hyperLogLog.m)}")
+    println(s"ProbabilityCount: $probabilityCount")
+    println(s"Error: ${error * 100}%")
+    println(s"Expectation: ${1.04 / sqrt(hyperLogLog.m) * 100}%")
+  }
+
+  def printlnRunTime[T](f: => T): T = {
+    val before = System.currentTimeMillis()
+    val result = f
+    val after = System.currentTimeMillis()
+    println(after - before)
+    result
   }
 
   test("test LogLog") {
-    val loglog = LogLog(16)
-
     val random = new Random(System.nanoTime)
-    val tests = Range(0, 10000000).map(_ => random.nextInt(200000))
 
-    loglog.insertAll(tests)
+    val tests = printlnRunTime {
+      Range(0, 1000).par.map { iter =>
+        Range(0, 10000).map(_ => random.nextInt(200000))
+      }.seq
+    }
+
+    val loglog = printlnRunTime {
+      val ll = LogLog(16)
+      ll.insertAll(tests.flatten)
+      ll
+    }
+
     val probabilityCount = loglog.estimate
-    val realCount = tests.distinct.size
+    val realCount = printlnRunTime {
+      tests.flatten.distinct.size
+    }
 
-    val error = (probabilityCount.toDouble - realCount) / realCount
+    val error = (probabilityCount.toDouble - realCount).abs / realCount
 
-    println(s"Error: $error")
-    println(s"Expectation: ${1.3 / sqrt(loglog.m)}")
+    println(s"Error: ${error * 100}%")
+    println(s"Expectation: ${130 / sqrt(loglog.m)}%")
   }
 }

@@ -46,6 +46,9 @@ class HyperLogLogPlusPlus(private[algorithm] override val p: Int) extends LogLog
     }
     e.toLong
   }
+
+  def +(other: HyperLogLogPlusPlus): HyperLogLogPlusPlus =
+    merge(other.asInstanceOf[LogLog]).asInstanceOf[HyperLogLogPlusPlus]
 }
 
 object HyperLogLogPlusPlus {

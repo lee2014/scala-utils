@@ -1,6 +1,6 @@
 package algorithm.cardinality
 
-import algorithm.MD5Hash
+import algorithm.Hash
 
 import scala.math._
 
@@ -9,7 +9,7 @@ import scala.math._
   * Created by lee on 17-3-20.
   */
 class FlajoletMartin(private val p: Int, private val L: Int)
-  extends CardinalityEstimation with MD5Hash {
+  extends CardinalityEstimation with Hash {
 
   require(p > 0 && L > 0)
 
@@ -26,7 +26,13 @@ class FlajoletMartin(private val p: Int, private val L: Int)
     val mapIdx = (hashValue % m).toInt
     val index = rho(hashValue / m)
 
-    bitmaps(mapIdx) = bitmaps(mapIdx) | BigInt(pow(2, index).toLong)
+    bitmaps(mapIdx) |= BigInt(pow(2, index).toLong)
+  }
+
+  def +(other: FlajoletMartin): FlajoletMartin = {
+    if (m != other.m) throw new IllegalArgumentException(s"Argument m is not equal")
+    Range(0, m).foreach(idx => bitmaps(idx) |= other.bitmaps(idx))
+    this
   }
 
   /**
