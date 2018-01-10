@@ -9,10 +9,10 @@ import scala.math.BigInt
   * Created by lee on 17-3-22.
   */
 trait Hash {
-  private final val hash = Hashing.goodFastHash(64)
+  private final val hash = Hashing.murmur3_128(System.currentTimeMillis.toInt)
 
   private[algorithm] def hash(value: Any): BigInt = {
-    val hashCode = hash.newHasher.putBytes(value.toString.getBytes).hash.asBytes
+    val hashCode = hash.hashBytes(value.toString.getBytes).asBytes
     BigInt(hashCode)
   }
 }

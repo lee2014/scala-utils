@@ -11,7 +11,7 @@ import scala.util.control.Breaks.{break, breakable}
   */
 class LogLog(private[algorithm] val p: Int) extends CardinalityEstimation with Hash {
   require(4 <= p && p <= 20,
-    s"Parameter p: $p shouldn't be out of range from 4 to 16!")
+    s"Parameter p: $p shouldn't be out of range from 4 to 20!")
 
   val lnOf2: Double = log(2) // natural log of 2
   def log2(x: Double): Double = log(x) / lnOf2

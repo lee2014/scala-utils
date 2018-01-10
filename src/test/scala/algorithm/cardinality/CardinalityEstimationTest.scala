@@ -39,6 +39,7 @@ class CardinalityEstimationTest extends FunSuite with BeforeAndAfterAll{
     val error = (probabilityCount.toDouble - realCount).abs / realCount
 
     println(s"ProbabilityCount: $probabilityCount")
+    println(s"RealCount: $realCount")
     println(s"Error: ${error * 100}%")
     println(s"Expectation: ${1.04 / sqrt(hyperLogLog.m) * 100}%")
   }
