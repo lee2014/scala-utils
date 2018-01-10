@@ -1,5 +1,7 @@
 package data
 
+import java.util.concurrent.locks.{ReadWriteLock, ReentrantReadWriteLock}
+
 import scala.language.higherKinds
 
 /**
@@ -7,6 +9,40 @@ import scala.language.higherKinds
   * Created By chengli at 10/01/2018
   */
 abstract class BSTree[T <: Comparable[T]] {
+
+  private val rwLock: ReadWriteLock = new ReentrantReadWriteLock
+
+  /**
+    * ReadLock function template
+    * @param f the function need readLock
+    * @tparam R the return type of function "f"
+    * @return
+    */
+  protected def read[R](f: => R): R = {
+    rwLock.readLock.lock()
+    try {
+      f
+    } finally {
+      rwLock.readLock.unlock()
+    }
+  }
+
+  /**
+    * WriteLock function template
+    * @param f the function need writeLock
+    * @tparam R the return type of function "f"
+    * @return
+    */
+  protected def write[R](f: => R): R = {
+    rwLock.writeLock.lock()
+    try {
+      f
+    } finally {
+      rwLock.writeLock.unlock()
+    }
+  }
+
+  def find(value: T): Option[T]
 }
 
 /**
@@ -15,7 +51,9 @@ abstract class BSTree[T <: Comparable[T]] {
   * @tparam T the Class Type of Key
   * @tparam Node the Class Type of Node
   */
-abstract class BSNode[T <: Comparable[T], Node[_ <: Comparable[T]]](private var value: T) extends Comparable[BSNode[T, Node]] {
+abstract class BSNode[T <: Comparable[T], Node[_ <: Comparable[T]]](private var value: T)
+  extends Comparable[BSNode[T, Node]] {
+
   private[data] var left: Node[T] = _
 
   private[data] var right: Node[T] = _

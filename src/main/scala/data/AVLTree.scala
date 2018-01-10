@@ -6,6 +6,7 @@ import java.util.concurrent.locks.{ReadWriteLock, ReentrantReadWriteLock}
   * Created By chengli at 03/01/2018
   */
 class AVLTree[T <: Comparable[T]] {
+
   private final val NULL = null.asInstanceOf[T]
 
   private val root: AVLNode[T] = new AVLNode[T](NULL)
@@ -251,7 +252,9 @@ class AVLTree[T <: Comparable[T]] {
   }
 }
 
-private[AVLTree] class AVLNode[T <: Comparable[T]](private var value: T) extends BSNode[T, AVLNode](value) {
+private[data] class AVLNode[T <: Comparable[T]](private var value: T)
+  extends BSNode[T, AVLNode](value) {
+
   private var height: Int = 1
 
   def setHeight(h: Int): Unit = this.height = h
