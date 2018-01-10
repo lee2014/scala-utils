@@ -98,7 +98,7 @@ class AVLTree[T <: Comparable[T]] {
     * @return height of a node in AVLTree
     */
   private def getHeight(node: AVLNode[T]): Int = {
-    if (node == null) 0 else node.height
+    if (node == null) 0 else node.getHeight
   }
 
   /**
@@ -106,7 +106,7 @@ class AVLTree[T <: Comparable[T]] {
     * @param node AVLNode
     */
   private def calHeight(node: AVLNode[T]): Unit = {
-    node.height = math.max(getHeight(node.left), getHeight(node.right)) + 1
+    node.setHeight(math.max(getHeight(node.left), getHeight(node.right)) + 1)
   }
 
   /**
@@ -251,20 +251,12 @@ class AVLTree[T <: Comparable[T]] {
   }
 }
 
-private[data] class AVLNode[T <: Comparable[T]](private var value: T) extends Comparable[AVLNode[T]] {
-  private[data] var left: AVLNode[T] = _
+private[AVLTree] class AVLNode[T <: Comparable[T]](private var value: T) extends BSNode[T, AVLNode](value) {
+  private var height: Int = 1
 
-  private[data] var right: AVLNode[T] = _
+  def setHeight(h: Int): Unit = this.height = h
 
-  private[data] var height: Int = 1
-
-  private[data] def setValue(value: T): Unit = this.value = value
-
-  private[data] def getValue: T = value
-
-  override def compareTo(o: AVLNode[T]): Int = {
-    value.compareTo(o.getValue)
-  }
+  def getHeight: Int = this.height
 }
 
 object AVLNode {
