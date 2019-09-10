@@ -2,6 +2,7 @@ package algorithm.cardinality
 
 import org.scalatest.{BeforeAndAfterAll, FunSuite}
 
+import scala.io.Source
 import scala.math.{abs, sqrt}
 import scala.util.Random
 
@@ -27,12 +28,14 @@ class CardinalityEstimationTest extends FunSuite with BeforeAndAfterAll{
   }
 
   test("test HyperLogLogPlusPlus") {
-    val hyperLogLog = HyperLogLogPlusPlus(18)
+    val hyperLogLog = HyperLogLogPlusPlus(12)
+    val hlls = Array.fill(100)(HyperLogLogPlusPlus(12))
 
     val random = new Random(System.nanoTime)
     val tests = Range(0, 10000000).map(_ => random.nextInt(200000))
 
-    printlnRunTime { hyperLogLog.insertAll(tests) }
+    tests.foreach( t => hlls(t % 100).insert(t))
+    hlls.foreach(hyperLogLog.merge)
     val probabilityCount = hyperLogLog.estimate
     val realCount = tests.distinct.size
 

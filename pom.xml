@@ -50,6 +50,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.typelevel</groupId>
+            <artifactId>spire_2.11</artifactId>
+            <version>0.14.1</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>23.6-jre</version>

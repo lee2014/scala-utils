@@ -3,8 +3,7 @@ package algorithm.cardinality
 import algorithm.Hash
 import util.Util.require
 
-import scala.math.{BigInt, Pi, log, max, pow}
-import scala.util.control.Breaks.{break, breakable}
+import scala.math.{BigInt, Pi, log, pow}
 
 /**
   * Created by lee on 17-3-28.
@@ -17,7 +16,7 @@ class LogLog(private[algorithm] val p: Int) extends CardinalityEstimation with H
   def log2(x: Double): Double = log(x) / lnOf2
 
   private[algorithm] final val m: Int = pow(2, p).toInt
-  private[algorithm] final val registers: Array[Int] = Array.fill(m)(0)
+  private[algorithm] final val registers: Array[Byte] = Array.fill(m)(0)
 
   /**
     * Find registerIndex from hashed value.
@@ -37,7 +36,7 @@ class LogLog(private[algorithm] val p: Int) extends CardinalityEstimation with H
   private[algorithm] override def insert(value: Any): Unit = {
     val x: BigInt = hash(value)
     val idx: Int = registerIndex(x)
-    val w: Int = rho(x)
+    val w: Byte = rho(x)
 
     if (w > registers(idx)) registers(idx) = w
   }
@@ -54,19 +53,8 @@ class LogLog(private[algorithm] val p: Int) extends CardinalityEstimation with H
     * ρ(s) represent the position of the leftmost 1.
     * For examples, ρ([0001...]2) = 4, ρ([001...]2) = 3, ρ([1...]2) = 1
     */
-  private[algorithm] def rho(value: BigInt): Int= {
-    var rhoValue = 64 - p - 1
-
-    breakable {
-      Range(0, 64 - p).foreach { index =>
-        if (value.testBit(index)) {
-          rhoValue = index
-          break
-        }
-      }
-    }
-
-    rhoValue + 1
+  private[algorithm] def rho(value: BigInt): Byte = {
+    (Range(0, 64 - p).find(value.testBit).getOrElse(64 - p - 1) + 1).toByte
   }
 
   private[algorithm] def rawEstimate: Double = {
@@ -81,7 +69,10 @@ class LogLog(private[algorithm] val p: Int) extends CardinalityEstimation with H
 
   private[algorithm] def merge(other: LogLog): LogLog = {
     if (m != other.m) throw new IllegalArgumentException("Can't be added together!")
-    Range(0, m).foreach(i => registers(i) = max(registers(i), other.registers(i)))
+    Range(0, m).foreach(i =>
+      if (registers(i) < other.registers(i))
+        registers(i) = other.registers(i)
+    )
     this
   }
 
